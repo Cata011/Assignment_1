@@ -1,0 +1,16 @@
+[
+  {
+    "UserName": "Cata",
+    "UserId": 0,
+    "Role": "Admin",
+    "SecurityLevel": 2,
+    "Password": "123456"
+  },
+  {
+    "UserName": "person1",
+    "UserId": 5,
+    "Role": "Adult",
+    "SecurityLevel": 1,
+    "Password": "something"
+  }
+]

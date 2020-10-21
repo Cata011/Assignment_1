@@ -1,0 +1,64 @@
+﻿@using Models
+@namespace family
+<h3>AddPetsToTheChild</h3>
+
+<EditForm Model="@_pet" OnValidSubmit="@CreatePet">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="form-group">
+        Child Id:<br/>
+        <InputNumber rows="1" @bind-Value="_pet.Id"/>
+    </div>
+
+    <div class="form-group">
+        Species:<br/>
+        <InputTextArea rows="1" @bind-Value="_pet.Species"/>
+    </div>
+
+    <div class="form-group">
+        Name:<br/>
+        <InputTextArea rows="1" @bind-Value="_pet.Name"/>
+    </div>
+
+    <div class="form-group">
+        Age:<br/>
+        <InputNumber rows="1" @bind-Value="_pet.Age"/>
+    </div>
+    
+    <label> @_confirmationMessage </label>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create</button>
+    </p>
+</EditForm>
+
+
+@code {
+    private Pet _pet;
+    private Child _child;
+    private string _confirmationMessage = "";
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _pet = new Pet();
+    }
+    
+    private void CreatePet()
+    {
+        _child = Service.GetCachedFamily().Children.Find(child1 => child1.Id == _pet.Id);
+        if (_child.Pets == null) _child.Pets = new List<Pet>();
+   
+        try
+        {
+            _child.Pets.Add(_pet);
+            _confirmationMessage = "Child's pet added, you can add more";
+            _pet = new Pet();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+}

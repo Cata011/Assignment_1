@@ -1,0 +1,84 @@
+﻿@page "/EditChildInterests/{FamilyToEdit}"
+@using FileData
+@using Models
+@using Assignment_1.Pages.Popup
+@namespace edit
+<h3>EditChildInterests</h3>
+
+<EditForm Model="@_childInterest" OnValidSubmit="@EditInterest">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <label> Interest @_counter:</label>
+    <div class="form-group">
+        Interest:<br/>
+        <InputText @bind-Value="_childInterest.InterestId"/>
+    </div>
+    
+    <label> @_confirmationMessage </label>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Edit</button>
+    </p>
+
+</EditForm>
+<br>
+<Popup IsOpened="@_isPopupOpened"/>
+
+@code {
+    [Parameter]
+    public string FamilyToEdit { get; set; }
+
+    FileContext _fileContext = new FileContext();
+    private List<ChildInterest> _childInterests = new List<ChildInterest>();
+    private ChildInterest _childInterest = new ChildInterest();
+    private Child _child = new Child();
+    private Family _family = new Family();
+    private int _counter = 0;
+    private string _confirmationMessage = "";
+
+    private bool _isPopupOpened;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Refresh();
+    }
+
+    private void EditInterest()
+    {
+        _childInterests[_counter].Update(_childInterest);
+        _counter++;
+        if(_counter < _childInterests.Count)
+        {
+            Refresh();
+        }
+        else if (_child.ChildInterests.Count == 0)
+        {
+            Refresh();
+        }
+        else
+        {
+            _family = _fileContext.Families.First(dummy => dummy.HouseNumber == _family.HouseNumber && dummy.StreetName.Equals(_family.StreetName));
+            _child.ChildInterests = _childInterests;
+            _fileContext.SaveChanges();
+            NavigationManager.NavigateTo("/ViewFamily");
+        }
+    }
+
+    private void Refresh()
+    {
+        _family = Service.GetAllFamilies().FirstOrDefault(f => (f.StreetName + f.HouseNumber).Equals(FamilyToEdit));
+        _child = _family.Children.First(f => f.Id == 2);    //TODO: this is design flaw. Instead of 2 it should be childId from Child Interest but can't do that.
+        _childInterests = _child.ChildInterests;
+        _isPopupOpened = false;
+        if (_child.ChildInterests.Count == 0)
+        {
+            _confirmationMessage = "No data is present to edit";
+            _isPopupOpened = true;
+        }
+        else
+        {
+            _childInterest = _childInterests[_counter];
+        }
+    }
+}

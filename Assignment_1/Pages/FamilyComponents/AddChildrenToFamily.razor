@@ -1,0 +1,101 @@
+﻿@using Models
+@namespace family
+
+
+<EditForm Model="@_child" OnValidSubmit="@CreateChild" >
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div>
+        <div class="col-lg-4 p-3" style="float:left;">
+            <h3>AddChildrenToFamily</h3>
+            <div class="form-group">
+                Id:<br/>
+                <InputNumber rows="1" @bind-Value="_child.Id"/>
+            </div>
+
+            <div class="form-group">
+                First name:<br/>
+                <InputTextArea rows="1" @bind-Value="_child.FirstName"/>
+            </div>
+
+            <div class="form-group">
+                Last name:<br/>
+                <InputTextArea rows="1" @bind-Value="_child.LastName"/>
+            </div>
+
+            <div class="form-group">
+                Hair colour:<br/>
+                <InputTextArea rows="1" @bind-Value="_child.HairColor"/>
+            </div>
+
+            <div class="form-group">
+                Eye colour:<br/>
+                <InputTextArea rows="1" @bind-Value="_child.EyeColor"/>
+            </div>
+
+            <div class="form-group">
+                Age:<br/>
+                <InputNumber @bind-Value="_child.Age"/>
+            </div>
+
+            <div class="form-group">
+                Weight:<br/>
+                <InputNumber @bind-Value="_child.Weight"/>
+            </div>
+
+            <div class="form-group">
+                Height:<br/>
+                <InputNumber @bind-Value="_child.Height"/>
+            </div>
+
+            <div class="form-group">
+                Sex:<br/>
+                <InputTextArea rows="1" @bind-Value="_child.Sex"/>
+            </div>
+
+            <p class="actions">
+                <button class="btn btn-outline-dark" type="submit">Create</button>
+            </p>
+        </div>
+        <div class="col-lg-4 p-3" style="float: left;"><AddInterestsToChildToFamily/></div>
+        <div class="col-lg-4 p-3" style="float: left;"><AddPetsToTheChild/></div>
+    </div>
+
+
+</EditForm>
+<br>
+
+<label> @_confirmationMessage </label>
+@code {
+    private List<Child> _children;
+    private Child _child;
+    private string _confirmationMessage = "";
+
+    private void CreateChild()
+    {
+        if (_children.Count < 7)
+        {
+            _children.Add(_child);
+            _confirmationMessage = "Child added,you can add Interests or Pets for this child (please make sure the ID matches), create another one (total of 7) or submit";
+        }
+        else
+        {
+            _confirmationMessage = "A maximum of 7 children can be added for a family, please proceed.";
+        }
+        
+        UpdateCashedFamily();
+    }
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _children = new List<Child>();
+        _child = new Child();
+    }
+
+    private void UpdateCashedFamily()
+    {
+        Service.GetCachedFamily().Children = _children;
+        _child = new Child();
+    }
+
+}

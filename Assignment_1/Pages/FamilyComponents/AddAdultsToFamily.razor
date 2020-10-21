@@ -1,0 +1,104 @@
+﻿@using Models
+@namespace family
+<h3>AddAdultsToFamily</h3>
+
+<EditForm Model="@_adult" OnValidSubmit="@CreateAdult">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+    <div class="form-group">
+            Id:<br/>
+            <InputNumber rows="1" @bind-Value="_adult.Id"/>
+        </div>
+    
+    <div class="form-group">
+        First name:<br/>
+        <InputTextArea rows="1" @bind-Value="_adult.FirstName"/>
+    </div>
+    
+    <div class="form-group">
+        Last name:<br/>
+        <InputTextArea rows="1" @bind-Value="_adult.LastName"/>
+    </div>
+    
+    <div class="form-group">
+        Hair colour:<br/>
+        <InputTextArea rows="1" @bind-Value="_adult.HairColor"/>
+    </div>
+    
+    <div class="form-group">
+        Eye colour:<br/>
+        <InputTextArea rows="1" @bind-Value="_adult.EyeColor"/>
+    </div>
+    
+    <div class="form-group">
+        Age:<br/>
+        <InputNumber @bind-Value="_adult.Age"/>
+    </div>
+    
+    <div class="form-group">
+            Weight:<br/>
+            <InputNumber @bind-Value="_adult.Weight"/>
+        </div>
+    
+    <div class="form-group">
+            Height:<br/>
+            <InputNumber @bind-Value="_adult.Height"/>
+        </div>
+
+    <div class="form-group">
+        Sex:<br/>
+        <InputTextArea rows="1" @bind-Value="_adult.Sex"/>
+    </div>
+    
+    <div class="form-group">
+            Job:<br/>
+            <InputTextArea rows="1" @bind-Value="_adult.JobTitle"/>
+        </div>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create</button>
+    </p>
+    
+    <label> @_confirmationMessage </label>
+</EditForm>
+<br>
+
+
+@code {
+    private List<Adult> _adults;
+    private Adult _adult;
+    private string _confirmationMessage = "";
+
+    private void CreateAdult()
+    {
+        if (_adults.Count < 2)
+            try
+            {
+                _adults.Add(_adult);
+                _confirmationMessage = "Adult added, you can create another one (total of 2) or submit.";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        else
+        {
+            _confirmationMessage = "There can only be two adults per family, please proceed.";
+        }
+        UpdateCashedFamily();
+    }
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _adults = new List<Adult>();
+        _adult = new Adult();
+    }
+
+    private void UpdateCashedFamily()
+    {
+        Service.GetCachedFamily().Adults = _adults;
+        _adult = new Adult();
+    }
+}

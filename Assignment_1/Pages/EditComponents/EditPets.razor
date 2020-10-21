@@ -1,0 +1,95 @@
+﻿@page "/EditPets/{FamilyToEdit}"
+@using FileData
+@using Models
+@using Assignment_1.Pages.Popup
+@namespace edit
+<h3>EditPets</h3>
+
+<EditForm Model="@_pet" OnValidSubmit="@EditPet">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <label> Pet @_counter:</label>
+    
+    <div class="form-group">
+        Species:<br/>
+        <InputTextArea rows="1" @bind-Value="_pet.Species"/>
+    </div>
+
+    <div class="form-group">
+        Name:<br/>
+        <InputTextArea rows="1" @bind-Value="_pet.Name"/>
+    </div>
+
+    <div class="form-group">
+        Age:<br/>
+        <InputNumber rows="1" @bind-Value="_pet.Age"/>
+    </div>
+    
+      <label> @_confirmationMessage </label>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Edit</button>
+    </p>
+</EditForm>
+<br>
+<Popup IsOpened="@_isPopupOpened"/>
+
+@code {
+
+    [Parameter]
+    public string FamilyToEdit { get; set; }
+
+    FileContext _fileContext = new FileContext();
+    private List<Pet> _pets = new List<Pet>();
+    private Pet _pet = new Pet();
+    private Family _family = new Family();
+    private int _counter = 0;
+    private string _confirmationMessage = "";
+
+    private bool _isPopupOpened;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Refresh();
+    }
+
+    private void EditPet()
+    {
+        _pets[_counter].Update(_pet);
+        _counter++;
+        if (_counter < _family.Pets.Count)
+        {
+            Refresh();
+            
+        }
+        else if (_family.Pets.Count == 0)
+        {
+            Refresh();
+        }
+        else
+        {
+            _family = _fileContext.Families.First(dummy => dummy.HouseNumber == _family.HouseNumber && dummy.StreetName.Equals(_family.StreetName));
+            _family.Pets = _pets;
+            _fileContext.SaveChanges();
+            NavigationManager.NavigateTo("/ViewFamily");
+        }
+    }
+
+    private void Refresh()
+    {
+        _family = Service.GetAllFamilies().FirstOrDefault(f => (f.StreetName + f.HouseNumber).Equals(FamilyToEdit));
+        _pets = _family.Pets;
+        _isPopupOpened = false;
+        if (_family.Pets.Count == 0)
+        {
+            _confirmationMessage = "No data is present to edit";
+            _isPopupOpened = true;
+        }
+        else
+        {
+            _pet = _pets[_counter];
+        }
+    }
+
+}

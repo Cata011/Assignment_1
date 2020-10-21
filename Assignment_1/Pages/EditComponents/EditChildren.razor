@@ -1,0 +1,139 @@
+﻿@page "/EditChildren/{FamilyToEdit}"
+@using FileData
+@using Models
+@using Assignment_1.Pages.Popup
+@namespace edit
+<h3>EditChildren</h3>
+
+
+<EditForm Model="@_child" OnValidSubmit="@EditChild">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <label> Child @_counter:</label>
+
+    <div class="form-group">
+        First name:<br/>
+        <InputTextArea rows="1" @bind-Value="_child.FirstName"/>
+    </div>
+
+    <div class="form-group">
+        Last name:<br/>
+        <InputTextArea rows="1" @bind-Value="_child.LastName"/>
+    </div>
+
+    <div class="form-group">
+        Hair colour:<br/>
+        <InputTextArea rows="1" @bind-Value="_child.HairColor"/>
+    </div>
+
+    <div class="form-group">
+        Eye colour:<br/>
+        <InputTextArea rows="1" @bind-Value="_child.EyeColor"/>
+    </div>
+
+    <div class="form-group">
+        Age:<br/>
+        <InputNumber @bind-Value="_child.Age"/>
+    </div>
+
+    <div class="form-group">
+        Weight:<br/>
+        <InputNumber @bind-Value="_child.Weight"/>
+    </div>
+
+    <div class="form-group">
+        Height:<br/>
+        <InputNumber @bind-Value="_child.Height"/>
+    </div>
+
+    <div class="form-group">
+        Sex:<br/>
+        <InputTextArea rows="1" @bind-Value="_child.Sex"/>
+    </div>
+
+    <button 
+        @* @onclick="MoveToEditChildInterestsPage"      DESIGN FLAW       *@        
+         >Edit child interests (broken)
+    </button>
+    <button
+        @* @onclick="MoveToEditChildPetsPage" *@
+         > Edit child pets (broken)</button>
+        
+     <label> @_confirmationMessage </label>
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Edit</button>
+    </p>
+</EditForm>
+<br>
+<Popup IsOpened="@_isPopupOpened"/>
+
+@code {
+
+    [Parameter]
+    public string FamilyToEdit { get; set; }
+
+    FileContext _fileContext = new FileContext();
+    private List<Child> _children = new List<Child>();
+    private Child _child = new Child();
+    private Family _family = new Family();
+    private int _counter = 0;
+    
+    private string _confirmationMessage = "";
+
+    private bool _isPopupOpened;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Refresh();
+    }
+
+    private void EditChild()
+    {
+        _children[_counter].Update(_child);
+        _counter++;
+        if (_counter < _family.Children.Count)
+        {
+            Refresh();
+        }
+        else if (_family.Children.Count == 0)
+        {
+            Refresh();
+        }
+        else
+        {
+            _counter = 0;
+            _family = _fileContext.Families.First(dummy => dummy.HouseNumber == _family.HouseNumber && dummy.StreetName.Equals(_family.StreetName));
+            _family.Children = _children;
+            _fileContext.SaveChanges();
+            NavigationManager.NavigateTo("/ViewFamily");
+        }
+    }
+
+    private void Refresh()
+    {
+        _family = Service.GetAllFamilies().FirstOrDefault(f => (f.StreetName + f.HouseNumber).Equals(FamilyToEdit));
+        _children = _family.Children;
+        _isPopupOpened = false;
+        if (_family.Children.Count == 0)
+        {
+            _confirmationMessage = "No data is present to edit";
+            _isPopupOpened = true;
+        }
+        else
+        {
+            _child = _children[_counter];
+        }
+    }
+
+    private void MoveToEditChildInterestsPage()
+    {
+        NavigationManager.NavigateTo("/EditChildInterests/" + FamilyToEdit);
+    }
+
+    private void MoveToEditChildPetsPage()
+    {
+        NavigationManager.NavigateTo("/EditChildPets/" + FamilyToEdit);
+    }
+
+}

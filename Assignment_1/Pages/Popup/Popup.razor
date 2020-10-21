@@ -1,0 +1,12 @@
+﻿<div class="popup @cssClass" >
+    <div class="popup-content">
+        <h3 class="m-3">There is no data present that can be modified, please go back to a previous page.</h3>
+        <span class="btn btn-primary" @onclick="() => IsOpened = false">X</span>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public bool IsOpened { get; set; }
+
+    string cssClass => IsOpened ? "show" : "hide";
+}

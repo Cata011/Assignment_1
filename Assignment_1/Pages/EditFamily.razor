@@ -1,0 +1,31 @@
+﻿@page "/EditFamily/{FamilyToEdit}"
+@* @attribute [Authorize("Adult")] *@
+
+@namespace edit
+<h3>Edit selected family</h3>
+
+
+<button @onclick="MoveToEditAdultsPage"> Edit Adults </button>
+<button @onclick="MoveToEditChildrenPage"> Edit Children </button>
+<button @onclick="MoveToEditPetsPage"> Edit Pets </button>
+
+@code {
+    
+    [Parameter] public string FamilyToEdit { get; set; }
+
+    private void MoveToEditAdultsPage()
+    {
+        NavigationManager.NavigateTo("/EditAdults/" + FamilyToEdit);
+    }
+    
+    private void MoveToEditChildrenPage()
+    {
+        NavigationManager.NavigateTo("/EditChildren/" + FamilyToEdit);
+    }
+    
+    private void MoveToEditPetsPage()
+    {
+        NavigationManager.NavigateTo("/EditPets/" + FamilyToEdit);
+    }
+
+}

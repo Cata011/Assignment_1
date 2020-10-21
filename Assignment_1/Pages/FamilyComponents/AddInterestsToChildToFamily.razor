@@ -1,0 +1,53 @@
+﻿@using Models
+@namespace family
+<h3>AddInterestsToChildToFamily</h3>
+
+<EditForm Model="@_childInterest" OnValidSubmit="@CreateInterest">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+    <div class="form-group">
+            Child ID:<br/>
+            <InputNumber rows="1" @bind-Value="_childInterest.ChildId"/>
+        </div>
+    
+    <div class="form-group">
+        Interest:<br/>
+        <InputTextArea rows="1" @bind-Value="_childInterest.InterestId"/>
+    </div>
+    
+    <label> @_confirmationMessage </label>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create</button>
+    </p>
+</EditForm>
+<br>
+@code {
+    private Child _child;
+    private ChildInterest _childInterest;
+    private string _confirmationMessage = "";
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _childInterest = new ChildInterest();
+    }
+
+    private void CreateInterest()
+    {
+        _child = Service.GetCachedFamily().Children.Find(child1 => child1.Id == _childInterest.ChildId);
+        if (_child.ChildInterests == null) _child.ChildInterests = new List<ChildInterest>();
+   
+        try
+        {
+            _child.ChildInterests.Add(_childInterest);
+            _confirmationMessage = "Interest added, you can add more.";
+            _childInterest = new ChildInterest();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+}

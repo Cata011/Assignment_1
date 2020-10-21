@@ -1,0 +1,37 @@
+﻿@page "/AddFamily"
+@inject IFamilyService Service
+@inject NavigationManager NavigationManager
+@namespace family
+
+<h3>Create a new family to add</h3>
+
+@switch (_step)
+{
+    case 0:<AddAdressToFamily/>
+        <button @onclick="() => nextStep()"> Next step </button>
+        break;
+
+    case 1:<AddAdultsToFamily/>
+        <button @onclick="() => nextStep()"> Next step </button>
+        break;
+
+    case 2:<AddChildrenToFamily/>
+        <button style="display: block; float: right; margin-right: 10%; clear: left;" @onclick="() => nextStep()"> Next step </button>
+        break;
+
+    case 3: <AddPetsToTheFamily/>
+        <button @onclick="() => nextStep()"> Next step </button>
+        break;
+
+        case 4: NavigationManager.NavigateTo("/");
+            break;
+}
+
+@code {
+    private int _step = 0;
+
+    private void nextStep()
+    {
+        _step++;
+    }
+}

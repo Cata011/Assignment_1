@@ -1,0 +1,144 @@
+﻿@page "/ViewFamily"
+@using Models
+@using System.Linq
+@inject IFamilyService Service
+@inject NavigationManager NavigationManager
+
+<h3>Here you can visualise the list of families stored in the system.</h3>
+
+<p/> You can use these filters to search for a specific family:
+<br/>
+<p>
+    Filter list by house number: <input type="number" @oninput="@((arg) => FilterHouseNumber(arg))" style="width:50px"/>
+</p>
+
+<p>
+    Filter list by street: <input type="text" @oninput="@((arg) => FilterStreet(arg))" style="width:50px"/>
+</p>
+
+@if
+    (_familiesToShow == null || !_familiesToShow.Any())
+{
+    <p>
+        <em>
+            Loading...If the filter is empty, please reload the page.
+        </em>
+    </p>
+}
+else if (!_families.Any())
+{
+    <p>
+        <em>
+            No Family items exist. Please add some.
+        </em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Parents</th>
+            <th>Children</th>
+            <th>Pets</th>
+            <th>House Number</th>
+            <th>Street</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach
+            (var item in _familiesToShow)
+        {
+            <tr>
+                <td>@String.Join(", ", item.Adults)</td>
+                <td>@String.Join(", ", item.Children)</td>
+                <td>@String.Join(", ", item.Pets)</td>
+                <td>@item.HouseNumber</td>
+                <td>@item.StreetName</td>
+                <AuthorizeView Policy="Adult" >
+                    <td>
+                        <button @onclick="@(() => RemoveFamily(item))">
+                            <i class="oi oi-trash" style="color:red"/>
+                        </button>
+                    </td>
+                    <td>
+                        <button @onclick="@(() => EditFamily(item))">
+                            <i class="oi oi-eye" style="color:blue">
+                            </i>
+                        </button>
+                    </td>
+                    </AuthorizeView>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    private IList<Family> _families;
+    private IList<Family> _familiesToShow;
+
+    [Parameter]
+    public Family FamilyToEdit { get; set; }
+
+    private string? filterStreet;
+    private int? filterNumber;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _families = Service.GetAllFamilies();
+        _familiesToShow = _families;
+    }
+
+    private void FilterStreet(ChangeEventArgs changeEventArgs)
+    {
+        filterStreet = null;
+        try
+        {
+            filterStreet = changeEventArgs.Value.ToString();
+        }
+        catch (Exception e)
+        {
+        }
+        ExecuteFilter();
+    }
+
+    private void FilterHouseNumber(ChangeEventArgs changeEventArgs)
+    {
+        filterNumber = null;
+        try
+        {
+            filterNumber = int.Parse(changeEventArgs.Value.ToString());
+        }
+        catch (Exception e)
+        {
+        }
+        ExecuteFilter();
+    }
+
+    private void ExecuteFilter()
+    {
+        _familiesToShow = _families.Where(t =>
+            (filterStreet != null && t.StreetName == filterStreet || filterStreet == null) &&
+            (filterNumber != null && t.HouseNumber == filterNumber ||
+             filterNumber == null)
+            ).ToList();
+    }
+
+    private void RemoveFamily(Family family)
+    {
+        Family familyToRemove = _families.First(t => t.StreetName == family.StreetName
+                                                     && t.HouseNumber == family.HouseNumber);
+        Service.RemoveFamily(family);
+        _families.Remove(familyToRemove);
+    }
+
+    private void EditFamily(Family family)
+    {
+        FamilyToEdit = _families.First(t => t.StreetName == family.StreetName
+                                                     && t.HouseNumber == family.HouseNumber);
+        NavigationManager.NavigateTo("/EditFamily/" + FamilyToEdit.StreetName + FamilyToEdit.HouseNumber);
+    }
+
+}

@@ -1,0 +1,46 @@
+﻿@using Models
+@using Assignment_1.Data
+@inject IFamilyService Service
+@namespace family
+
+<h3>AddAdressToFamily</h3>
+
+<EditForm Model="@Service.GetCachedFamily()" OnValidSubmit="@UpdateCashedFamily">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="form-group">
+        House number:<br/>
+        <InputNumber @bind-Value="_houseNumber"/>
+    </div>
+    <div class="form-group">
+        Street:<br/>
+        <InputTextArea rows="1" @bind-Value="_streetName"/>
+    </div>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Submit</button>
+    </p>
+    
+    <label> @_confirmationMessage </label>
+</EditForm>
+<br>
+
+
+@code {
+
+    private int _houseNumber;
+    private string _streetName;
+    private string _confirmationMessage = "";
+
+    private void CreateAddress()
+    {
+        UpdateCashedFamily();
+    }
+    
+    private void UpdateCashedFamily()
+    {
+        Service.GetCachedFamily().StreetName = _streetName;
+        Service.GetCachedFamily().HouseNumber = _houseNumber;
+        _confirmationMessage = "Address added, continue through the process.";
+    }
+}

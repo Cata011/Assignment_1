@@ -1,0 +1,77 @@
+﻿@using Models
+@using Assignment_1.Data
+@using FileData
+@using System.Text.Json
+@namespace family
+<h3>AddPetsToTheFamily</h3>
+
+<EditForm Model="@_pet" OnValidSubmit="@CreatePet">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="form-group">
+        Id:<br/>
+        <InputNumber rows="1" @bind-Value="_pet.Id"/>
+    </div>
+
+    <div class="form-group">
+        Species:<br/>
+        <InputTextArea rows="1" @bind-Value="_pet.Species"/>
+    </div>
+
+    <div class="form-group">
+        Name:<br/>
+        <InputTextArea rows="1" @bind-Value="_pet.Name"/>
+    </div>
+
+    <div class="form-group">
+        Age:<br/>
+        <InputNumber rows="1" @bind-Value="_pet.Age"/>
+    </div>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Submit</button>
+    </p>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit" @onclick="Save">Save</button>
+    </p>
+</EditForm>
+<br>
+<label> @_confirmationMessage </label>
+
+@code {
+    private FileContext _fileContext = new FileContext();
+    private Pet _pet;
+    private List<Pet> _pets;
+    private string _confirmationMessage = "";
+
+    private void CreatePet()
+    {
+        try
+        {
+            _pets.Add(_pet);
+            Service.GetCachedFamily().Pets = _pets;
+            _pet = new Pet();
+            _confirmationMessage = "Family pet added, you can add more";
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        _pet = new Pet();
+        _pets = new List<Pet>();
+    }
+
+    private void Save()
+    {
+        _fileContext.Families.Add(Service.GetCachedFamily());
+        _fileContext.SaveChanges();
+    }
+
+}
